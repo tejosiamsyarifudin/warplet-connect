@@ -1,0 +1,4 @@
+import COLORS from "./COLORS";
+import { ROWS, COLS, GRID_SIZE, TILE_SIZE, EMPTY } from "./BOARD_SIZE";
+
+export { COLORS, ROWS, COLS, GRID_SIZE, TILE_SIZE, EMPTY };
