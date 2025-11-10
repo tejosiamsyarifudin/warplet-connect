@@ -9,7 +9,11 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* background-color: #242424; */
+  background-image: url('/src/assets/background.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover; /* stretch menutupi seluruh area */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

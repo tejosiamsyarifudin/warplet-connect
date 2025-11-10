@@ -149,7 +149,7 @@ export function drawSelection(
             y: center.y + PADDING
         };
 
-        ctx.strokeStyle = "#ff6b6b";
+        ctx.strokeStyle = "#7959ff";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.rect(actualCenter.x - tileRadius - 3, actualCenter.y - tileRadius - 3, highlightSize, highlightSize);
@@ -168,7 +168,7 @@ export function drawPath(
 ): void {
     if (!path || path.length < 2) return;
 
-    ctx.strokeStyle = "#ff6b6b";
+    ctx.strokeStyle = "#7959ff";
     ctx.lineWidth = 4;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";

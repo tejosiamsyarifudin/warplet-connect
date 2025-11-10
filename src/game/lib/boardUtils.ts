@@ -1,107 +1,105 @@
-import { COLS, EMPTY, GRID_SIZE, ROWS, TILE_COUNTS } from "../CONST";
+import { COLS, EMPTY, GRID_SIZE, ROWS, TILE_COUNTS, TILE_IMAGES } from "../CONST";
 import type { Point } from "../type";
 
-// 패딩 값 (캔버스 경계에서의 여백)
 const PADDING = GRID_SIZE;
 
-/**
- * 게임 보드를 생성합니다.
- * @returns 초기화된 게임 보드
- */
+function shuffleArray<T>(arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export function createBoard(): number[][] {
-    const board = Array.from({ length: ROWS }, () =>
-        Array.from({ length: COLS }, () => EMPTY)
-    );
-    
-    // 타일 배치 로직
-    const tilePositions: number[] = [];
-    
-    // 6개씩 배치할 타일들 (20개) - 총 120개
-    TILE_COUNTS.SIX_COUNT.forEach(tileIndex => {
-        for (let i = 0; i < 6; i++) {
-            tilePositions.push(tileIndex);
-        }
-    });
-    
-    // 10개씩 배치할 타일들 (2개) - 총 20개
-    TILE_COUNTS.TEN_COUNT.forEach(tileIndex => {
-        for (let i = 0; i < 10; i++) {
-            tilePositions.push(tileIndex);
-        }
-    });
-    
-    // 총 140개 타일이 있어야 함 (10x14)
-    console.log(`Total tiles: ${tilePositions.length}`);
-    
-    if (tilePositions.length !== ROWS * COLS) {
-        console.error(`Tile count mismatch: expected ${ROWS * COLS}, got ${tilePositions.length}`);
+  const board = Array.from({ length: ROWS }, () =>
+    Array.from({ length: COLS }, () => EMPTY)
+  );
+
+  const totalSlots = ROWS * COLS; // 54
+  const pairsNeeded = Math.floor(totalSlots / 2); // 27
+  const allTilesRaw = [...TILE_COUNTS.SIX_COUNT, ...TILE_COUNTS.TEN_COUNT];
+  // pastikan daftar jenis unik dan urut 0..N-1 sesuai TILE_IMAGES
+  const allTiles = Array.from(new Set(allTilesRaw)).filter(t => t >= 0 && t < TILE_IMAGES.length);
+  const numImages = allTiles.length; // biasanya 22
+
+  if (numImages === 0) {
+    throw new Error("No tile images available");
+  }
+
+  // distribusi pasangan: bagi merata lalu bagikan sisa
+  const basePairs = Math.floor(pairsNeeded / numImages); // bisa 0 atau 1, dst
+  const remainder = pairsNeeded % numImages; // beberapa gambar dapat +1 pair
+
+  // bangun daftar pasangan berdasarkan distribusi
+  const tilePairs: number[] = [];
+  for (let i = 0; i < numImages; i++) {
+    const tileIndex = allTiles[i];
+    const pairsForThisImage = basePairs + (i < remainder ? 1 : 0);
+    for (let p = 0; p < pairsForThisImage; p++) {
+      // setiap pair berarti dua tile identik
+      tilePairs.push(tileIndex, tileIndex);
     }
-    
-    // 타일들을 랜덤하게 섞기
-    for (let i = tilePositions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [tilePositions[i], tilePositions[j]] = [tilePositions[j], tilePositions[i]];
+  }
+
+  // Jika totalSlots ganjil, tambahkan 1 tile acak dari semua images
+  if (tilePairs.length < totalSlots) {
+    const extra = allTiles[Math.floor(Math.random() * numImages)];
+    tilePairs.push(extra);
+  }
+
+  // Pastikan panjang tepat totalSlots (potong jika kelebihan)
+  tilePairs.length = totalSlots;
+
+  // Acak posisi tile
+  shuffleArray(tilePairs);
+
+  // isi papan (sesuaikan +1 jika renderer pakai 1-based filenames)
+  let idx = 0;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      board[r][c] = tilePairs[idx] + 1;
+      idx++;
     }
-    
-    // 보드에 타일 배치
-    let tileIndex = 0;
-    for (let row = 0; row < ROWS; row++) {
-        for (let col = 0; col < COLS; col++) {
-            if (tileIndex < tilePositions.length) {
-                board[row][col] = tilePositions[tileIndex] + 1; // 1부터 시작하는 인덱스
-                tileIndex++;
-            }
-        }
-    }
-    
-    return board;
+  }
+
+  // debug counts untuk verifikasi
+  const counts: Record<number, number> = {};
+  for (const t of tilePairs) counts[t] = (counts[t] ?? 0) + 1;
+  console.log(
+    `createBoard: total ${tilePairs.length} tiles (${ROWS}x${COLS}), pairsNeeded: ${pairsNeeded}, numImages: ${numImages}`
+  );
+  console.log("Tile counts:", counts);
+
+  return board;
 }
 
-/**
- * 격자 중앙점 좌표를 구합니다.
- * @param row 행 인덱스
- * @param col 열 인덱스
- * @returns 중앙점 좌표
- */
 export function getGridCenter(row: number, col: number): Point {
-    return {
-        x: col * GRID_SIZE + GRID_SIZE / 2,
-        y: row * GRID_SIZE + GRID_SIZE / 2,
-    };
+  return {
+    x: col * GRID_SIZE + GRID_SIZE / 2,
+    y: row * GRID_SIZE + GRID_SIZE / 2,
+  };
 }
 
-/**
- * 타일 중앙점 좌표를 구합니다 (격자 중앙점과 동일).
- * @param row 행 인덱스
- * @param col 열 인덱스
- * @returns 타일 중앙점 좌표
- */
 export function getTileCenter(row: number, col: number): Point {
-    return getGridCenter(row, col);
+  return getGridCenter(row, col);
 }
 
-/**
- * 클릭한 위치가 어떤 격자 셀인지 찾습니다.
- * @param clientX 클라이언트 X 좌표
- * @param clientY 클라이언트 Y 좌표
- * @param rect 캔버스의 getBoundingClientRect() 결과
- * @returns 격자 위치 또는 null
- */
 export function getGridPosition(
-    clientX: number, 
-    clientY: number, 
-    rect: DOMRect | null
+  clientX: number,
+  clientY: number,
+  rect: DOMRect | null
 ): Point | null {
-    if (!rect) return null;
+  if (!rect) return null;
 
-    const x = clientX - rect.left - PADDING;
-    const y = clientY - rect.top - PADDING;
+  const x = clientX - rect.left - PADDING;
+  const y = clientY - rect.top - PADDING;
 
-    const col = Math.floor(x / GRID_SIZE);
-    const row = Math.floor(y / GRID_SIZE);
+  const col = Math.floor(x / GRID_SIZE);
+  const row = Math.floor(y / GRID_SIZE);
 
-    if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-        return { x: row, y: col };
-    }
-    return null;
-} 
+  if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+    return { x: row, y: col };
+  }
+  return null;
+}
