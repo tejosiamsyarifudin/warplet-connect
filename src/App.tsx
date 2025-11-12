@@ -4,6 +4,7 @@ import GameBoard from './game/components/GameBoard'
 import { useAccount, useConnect } from 'wagmi'
 import LeaderboardIcon from './assets/leaderboard.svg'
 import { fetchLeaderboard } from './game/lib/fetchLeaderboard'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
   const [ready, setReady] = useState(false)
@@ -144,7 +145,7 @@ function App() {
   if (!ready) return <div className="card">Loading...</div>;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <><div className="flex flex-col min-h-screen">
       {/* HEADER */}
       <header className="flex justify-between items-center py-2 px-12 bg-white/20 backdrop-blur-md shadow-lg">
         <div className="flex items-center gap-4">
@@ -168,9 +169,7 @@ function App() {
         </div>
 
         <div
-          className={`transition-all duration-500 ${
-            isPlaying ? isPaused : 'opacity-80 blur-sm pointer-events-none'
-          }`}
+          className={`transition-all duration-500 ${isPlaying ? isPaused : 'opacity-80 blur-sm pointer-events-none'}`}
         >
           <GameBoard
             key={gameKey}
@@ -178,8 +177,7 @@ function App() {
             onPause={handlePause}
             onScore={handleScore}
             level={level}
-            score={score}
-          />
+            score={score} />
         </div>
 
         {!isPlaying && !isGameOver && (
@@ -259,7 +257,7 @@ function App() {
           © 2025 lether.base.eth All rights reserved.
         </p>
       </footer>
-    </div>
+    </div><Analytics /></>
   )
 }
 
