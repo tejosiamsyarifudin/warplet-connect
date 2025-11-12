@@ -331,40 +331,33 @@ interface GameBoardProps {
   
     const canvas = canvasRef.current;
     if (!canvas) return;
-  
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
   
     const dpr = window.devicePixelRatio || 1;
   
-    // Define grid size explicitly
-    const cols = 6; // adjust to your actual COLS
-    const rows = 6; // adjust to your actual ROWS
-    const gridSize = 64; // or your tile size in px
+    // Use your actual constants
+    const logicalWidth = COLS * GRID_SIZE + GRID_SIZE * 2;
+    const logicalHeight = ROWS * GRID_SIZE + GRID_SIZE * 2;
   
-    // Logical pixel size
-    const logicalWidth = cols * gridSize;
-    const logicalHeight = rows * gridSize;
-  
-    // Resize canvas for high DPI displays
+    // Set internal pixel size for retina clarity
     canvas.width = logicalWidth * dpr;
     canvas.height = logicalHeight * dpr;
     ctx.scale(dpr, dpr);
   
-    // Match CSS size to fit screen width
-    const maxWidth = Math.min(window.innerWidth * 0.9, logicalWidth);
+    // Scale CSS size to fit the screen width responsively
+    const maxWidth = Math.min(window.innerWidth * 0.95, logicalWidth);
     const scale = maxWidth / logicalWidth;
     canvas.style.width = `${logicalWidth * scale}px`;
     canvas.style.height = `${logicalHeight * scale}px`;
   
-    // Clear + draw
+    // Draw
     ctx.clearRect(0, 0, logicalWidth, logicalHeight);
     drawGrid(ctx);
     drawTiles(ctx, board, images);
     drawSelection(ctx, selected);
     drawPath(ctx, path);
   }, [board, selected, path, images, isLoading]);
-  
 
   return (
     <div className="relative flex flex-col items-center gap-4">
@@ -379,8 +372,6 @@ interface GameBoardProps {
     height={ROWS * GRID_SIZE + GRID_SIZE * 2}
   />
 </div>
-
-
         {showShuffleConfirm && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-lg text-white p-6 z-40">
             <p className="text-lg font-bold mb-4">Do you want to shuffle?</p>
