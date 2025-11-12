@@ -328,35 +328,58 @@ interface GameBoardProps {
 
   useEffect(() => {
     if (isLoading) return;
+  
     const canvas = canvasRef.current;
     if (!canvas) return;
+  
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
+  
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+  
+    // Define grid size explicitly
+    const cols = 6; // adjust to your actual COLS
+    const rows = 6; // adjust to your actual ROWS
+    const gridSize = 64; // or your tile size in px
+  
+    // Logical pixel size
+    const logicalWidth = cols * gridSize;
+    const logicalHeight = rows * gridSize;
+  
+    // Resize canvas for high DPI displays
+    canvas.width = logicalWidth * dpr;
+    canvas.height = logicalHeight * dpr;
     ctx.scale(dpr, dpr);
-
-    ctx.clearRect(0, 0, rect.width, rect.height);
+  
+    // Match CSS size to fit screen width
+    const maxWidth = Math.min(window.innerWidth * 0.9, logicalWidth);
+    const scale = maxWidth / logicalWidth;
+    canvas.style.width = `${logicalWidth * scale}px`;
+    canvas.style.height = `${logicalHeight * scale}px`;
+  
+    // Clear + draw
+    ctx.clearRect(0, 0, logicalWidth, logicalHeight);
     drawGrid(ctx);
     drawTiles(ctx, board, images);
     drawSelection(ctx, selected);
     drawPath(ctx, path);
   }, [board, selected, path, images, isLoading]);
+  
 
   return (
     <div className="relative flex flex-col items-center gap-4">
   <div className="relative overflow-hidden rounded-lg shadow-lg"
        style={{ width: `${COLS * GRID_SIZE + GRID_SIZE * 2}px`, height: `${ROWS * GRID_SIZE + GRID_SIZE * 2}px` }}>
-    <canvas
-      ref={canvasRef}
-      width={COLS * GRID_SIZE + GRID_SIZE * 2}
-      height={ROWS * GRID_SIZE + GRID_SIZE * 2}
-      onClick={handleCanvasClickWrapper}
-      className="cursor-pointer block"
-    />
+    <div className="flex justify-center items-center w-full overflow-hidden">
+  <canvas
+    ref={canvasRef}
+    onClick={handleCanvasClickWrapper}
+    className="cursor-pointer block max-w-full h-auto"
+    width={COLS * GRID_SIZE + GRID_SIZE * 2}
+    height={ROWS * GRID_SIZE + GRID_SIZE * 2}
+  />
+</div>
+
 
         {showShuffleConfirm && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-lg text-white p-6 z-40">
