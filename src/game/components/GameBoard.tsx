@@ -348,14 +348,15 @@ interface GameBoardProps {
 
   return (
     <div className="relative flex flex-col items-center gap-4">
-      <div className="relative">
-        <canvas
-          ref={canvasRef}
-          width={COLS * GRID_SIZE + GRID_SIZE * 2}
-          height={ROWS * GRID_SIZE + GRID_SIZE * 2}
-          onClick={handleCanvasClickWrapper}
-          className="cursor-pointer rounded-lg"
-        />
+  <div className="relative overflow-hidden rounded-lg shadow-lg"
+       style={{ width: `${COLS * GRID_SIZE + GRID_SIZE * 2}px`, height: `${ROWS * GRID_SIZE + GRID_SIZE * 2}px` }}>
+    <canvas
+      ref={canvasRef}
+      width={COLS * GRID_SIZE + GRID_SIZE * 2}
+      height={ROWS * GRID_SIZE + GRID_SIZE * 2}
+      onClick={handleCanvasClickWrapper}
+      className="cursor-pointer block"
+    />
 
         {showShuffleConfirm && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-lg text-white p-6 z-40">
