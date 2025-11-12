@@ -23,10 +23,9 @@
 
 /* 캔버스 이미지 품질 개선 */
 canvas {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
+  image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translateZ(0);
+  display: block;
+  margin: 0 auto;
 }
