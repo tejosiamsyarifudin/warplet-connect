@@ -171,13 +171,18 @@ function App() {
         <div
           className={`transition-all duration-500 ${isPlaying ? isPaused : 'opacity-80 blur-sm pointer-events-none'}`}
         >
-          <GameBoard
+          <div className="flex justify-center items-center w-full">
+  <div className="relative w-full max-w-sm aspect-square">
+  <GameBoard
             key={gameKey}
             onComplete={handleLevelComplete}
             onPause={handlePause}
             onScore={handleScore}
             level={level}
             score={score} />
+  </div>
+</div>
+          
         </div>
 
         {!isPlaying && !isGameOver && (
