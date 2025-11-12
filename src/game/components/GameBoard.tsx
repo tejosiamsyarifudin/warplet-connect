@@ -346,7 +346,7 @@ interface GameBoardProps {
     ctx.scale(dpr, dpr);
   
     // Scale CSS size to fit the screen width responsively
-    const maxWidth = Math.min(window.innerWidth * 0.95, logicalWidth);
+    const maxWidth = Math.min(window.innerWidth * 1.4, logicalWidth);
     const scale = maxWidth / logicalWidth;
     canvas.style.width = `${logicalWidth * scale}px`;
     canvas.style.height = `${logicalHeight * scale}px`;
