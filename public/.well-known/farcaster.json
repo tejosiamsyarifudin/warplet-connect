@@ -19,7 +19,7 @@
       "tags": ["game", "puzzle", "connect", "fun", "warplet"],
       "tagline": "Connect fast, win big",
       "ogTitle": "Warplet Connect",
-      "ogDescription": "Play Warplet Connect, a modern Onet-style puzzle. Warplet is the Farcaster icon for fun and connection.",
+      "ogDescription": "Warplet Connect is a modern Onet puzzle. Warplet is the Farcaster icon for fun and connection.",
       "ogImageUrl": "https://warplet-connect.vercel.app/og-image.png"
     }
   }
