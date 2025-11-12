@@ -1,8 +1,8 @@
 {
     "accountAssociation": {
-      "header": "",
-      "payload": "",
-      "signature": ""
+      "header": "eyJmaWQiOjI5MjM1NCwidHlwZSI6ImF1dGgiLCJrZXkiOiIweEM3RThlRDgyYTM3ZmNBNDhEMzFDQmUyOWE5ODRjNkFhZjkyOTMyOWMifQ",
+      "payload": "eyJkb21haW4iOiJ3YXJwbGV0LWNvbm5lY3QudmVyY2VsLmFwcCJ9",
+      "signature": "FssOt4c9DwH7ykDVHpHLuBBtx7OCvbf+6TnRA7OLRIgKZkhHgUCRdnZsYuab3XWJHfptMH8NdnCaRGGVxQf0HRw="
     },
     "miniapp": {
       "version": "1",
@@ -14,12 +14,12 @@
       "splashImageUrl": "https://warplet-connect.vercel.app/splash.gif",
       "splashBackgroundColor": "#000000",
       "description": "Match pairs and clear the board in Warplet Connect.",
-      "subtitle": "A fun connect game inspired by Onet Classic",
-      "primaryCategory": "game",
+      "subtitle": "Modern Onet-style puzzle",
+      "primaryCategory": "games",
       "tags": ["game", "puzzle", "connect", "fun", "warplet"],
-      "tagline": "Connect the tiles. Beat the clock.",
+      "tagline": "Connect fast, win big",
       "ogTitle": "Warplet Connect",
-      "ogDescription": "Test your focus and speed in Warplet Connect, a modern Onet-style matching game. Warplet is the Farcaster icon for fun and connection.",
+      "ogDescription": "Play Warplet Connect, a modern Onet-style puzzle. Warplet is the Farcaster icon for fun and connection.",
       "ogImageUrl": "https://warplet-connect.vercel.app/og-image.png"
     }
   }
