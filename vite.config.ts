@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     allowedHosts: [
-      'statewide-dive-poison-blink.trycloudflare.com'
+      'warplet-connect.vercel.app'
     ]
   }
 })
