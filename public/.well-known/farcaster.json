@@ -1,0 +1,26 @@
+{
+    "accountAssociation": {
+      "header": "",
+      "payload": "",
+      "signature": ""
+    },
+    "miniapp": {
+      "version": "1",
+      "name": "Warplet Connect",
+      "iconUrl": "https://statewide-dive-poison-blink.trycloudflare.com/icon.png",
+      "homeUrl": "https://statewide-dive-poison-blink.trycloudflare.com",
+      "imageUrl": "https://statewide-dive-poison-blink.trycloudflare.com/og-image.png",
+      "buttonTitle": "Play Now",
+      "splashImageUrl": "https://statewide-dive-poison-blink.trycloudflare.com/splash.gif",
+      "splashBackgroundColor": "#000000",
+      "description": "Match pairs and clear the board in Warplet Connect.",
+      "subtitle": "A fun connect game inspired by Onet Classic",
+      "primaryCategory": "game",
+      "tags": ["game", "puzzle", "connect", "fun", "warplet"],
+      "tagline": "Connect the tiles. Beat the clock.",
+      "ogTitle": "Warplet Connect",
+      "ogDescription": "Test your focus and speed in Warplet Connect, a modern Onet-style matching game. Warplet is the Farcaster icon for fun and connection.",
+      "ogImageUrl": "https://statewide-dive-poison-blink.trycloudflare.com/og-image.png"
+    }
+  }
+  
