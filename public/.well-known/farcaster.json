@@ -21,7 +21,7 @@
       "ogTitle": "Warplet Connect",
       "ogDescription": "Warplet Connect is a modern Onet puzzle. Warplet is the Farcaster icon for fun and connection.",
       "ogImageUrl": "https://warplet-connect.vercel.app/og-image.png",
-      "noindex": true
+      "noindex": false
     }
   }
   
