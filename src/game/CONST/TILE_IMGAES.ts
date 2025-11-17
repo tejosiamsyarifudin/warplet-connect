@@ -29,10 +29,10 @@ function randomSupabaseUrl() {
 
 async function checkSupabase() {
   try {
-    const test = randomSupabaseUrl();
-    const res = await fetch(test, { method: "GET", cache: "no-store" });
+    const url = randomSupabaseUrl();
+    const res = await fetch(url, { method: "GET", cache: "no-store" });
     return res.ok;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -41,4 +41,6 @@ const supabaseAlive = await checkSupabase();
 
 export const TILE_IMAGES = supabaseAlive
   ? Array.from({ length: 21 }, () => randomSupabaseUrl())
-  : LOCAL_IMAGES.map((x) => `/assets/${x}`);
+  : LOCAL_IMAGES.map(
+      (name) => new URL(`../assets/tile/${name}`, import.meta.url).href
+    );
