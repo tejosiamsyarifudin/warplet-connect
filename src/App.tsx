@@ -409,7 +409,7 @@ function App() {
         </ul>
 
         <img
-          src="/src/assets/guide.png"
+          src="/guide.png"
           alt="How to play guide"
           className="w-full rounded-lg shadow-md"
         />
