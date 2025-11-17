@@ -216,28 +216,29 @@ export default function GameBoard({
         return imgs;
       };
 
-      // Try up to 3 attempts. if not enough images, fallback to local.
+      // Single attempt only
       let imgs: HTMLImageElement[] = [];
       let success = false;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          console.log(`🔄 Moralis attempt ${attempt}`);
-          imgs = await fetchNFTPage();
-          if (imgs.length >= 20) {
-            success = true;
-            break;
-          }
-          console.warn(`⚠️ Attempt ${attempt} returned ${imgs.length} images`);
-        } catch (err) {
+
+      try {
+        console.log("🔄 Moralis attempt 1");
+        imgs = await fetchNFTPage();
+
+        if (imgs.length >= 20) {
+          success = true;
+        } else {
           console.warn(
-            `⚠️ Attempt ${attempt} failed:`,
-            (err as Error).message || err
+            `⚠️ Only got ${imgs.length} images. Using local fallback`
           );
-          // short delay then retry
-          await new Promise((res) => setTimeout(res, 800));
         }
+      } catch (err) {
+        console.warn(
+          "⚠️ Moralis request failed:",
+          (err as Error).message || err
+        );
       }
 
+      // Fallback to local images if failed OR too few
       if (!success) {
         console.warn("❌ Falling back to local images");
         const localImages = await Promise.all(
@@ -248,10 +249,12 @@ export default function GameBoard({
               `../../assets/tile/${imageName}`,
               import.meta.url
             ).href;
+
             await new Promise<void>((res, rej) => {
               img.onload = () => res();
               img.onerror = () => rej();
             });
+
             return img;
           })
         );

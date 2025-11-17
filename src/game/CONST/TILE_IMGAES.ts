@@ -1,4 +1,4 @@
-export const TILE_IMAGES = [
+const LOCAL_IMAGES = [
   "warplet1.png",
   "warplet2.png",
   "warplet3.png",
@@ -19,5 +19,26 @@ export const TILE_IMAGES = [
   "warplet18.png",
   "warplet19.png",
   "warplet20.png",
-  "clankton.png",
+  "warplet21.png",
 ];
+
+function randomSupabaseUrl() {
+  const id = Math.floor(Math.random() * 848) + 1;
+  return `https://nawovbapysnhlgsitylr.supabase.co/storage/v1/object/public/assets/image-${id}.jpeg`;
+}
+
+async function checkSupabase() {
+  try {
+    const test = randomSupabaseUrl();
+    const res = await fetch(test, { method: "GET", cache: "no-store" });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+const supabaseAlive = await checkSupabase();
+
+export const TILE_IMAGES = supabaseAlive
+  ? Array.from({ length: 21 }, () => randomSupabaseUrl())
+  : LOCAL_IMAGES.map((x) => `/assets/${x}`);
