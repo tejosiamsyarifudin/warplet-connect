@@ -1,4 +1,11 @@
-import { COLS, EMPTY, GRID_SIZE, ROWS, TILE_COUNTS, TILE_IMAGES } from "../CONST";
+import {
+  COLS,
+  EMPTY,
+  GRID_SIZE,
+  ROWS,
+  TILE_COUNTS,
+  TILE_IMAGES,
+} from "../CONST";
 import type { Point } from "../type";
 
 const PADDING = GRID_SIZE;
@@ -20,7 +27,9 @@ export function createBoard(): number[][] {
   const pairsNeeded = Math.floor(totalSlots / 2); // 27
   const allTilesRaw = [...TILE_COUNTS.SIX_COUNT, ...TILE_COUNTS.TEN_COUNT];
   // pastikan daftar jenis unik dan urut 0..N-1 sesuai TILE_IMAGES
-  const allTiles = Array.from(new Set(allTilesRaw)).filter(t => t >= 0 && t < TILE_IMAGES.length);
+  const allTiles = Array.from(new Set(allTilesRaw)).filter(
+    (t) => t >= 0 && t < TILE_IMAGES.length
+  );
   const numImages = allTiles.length; // biasanya 22
 
   if (numImages === 0) {

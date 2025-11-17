@@ -1,28 +1,33 @@
 // src/game/components/GameBoard.tsx
 import React, { useRef, useEffect, useState } from "react";
 import { createBoard, getGridPosition } from "../lib/boardUtils";
-import { drawGrid, drawTiles, drawSelection, drawPath } from "../lib/canvasUtils";
+import {
+  drawGrid,
+  drawTiles,
+  drawSelection,
+  drawPath,
+} from "../lib/canvasUtils";
 import { handleCanvasClick } from "../lib/gameUtils";
 import type { Point } from "../type";
 import { COLS, GRID_SIZE, ROWS, TILE_IMAGES, EMPTY } from "../CONST";
-import { useSendTransaction, useAccount } from 'wagmi';
-import { parseEther } from 'viem';
+import { useSendTransaction, useAccount } from "wagmi";
+import { parseEther } from "viem";
 
 interface GameBoardProps {
-    onComplete?: () => void
-    onPause?: (pause: boolean) => void
-    onScore?: (points: number) => void // added
-    level?: number
-    score?: number
-  }
-  
-  export default function GameBoard({
-    onComplete,
-    onPause,
-    onScore,
-    level = 1,
-    score = 0,
-  }: GameBoardProps) {
+  onComplete?: () => void;
+  onPause?: (pause: boolean) => void;
+  onScore?: (points: number) => void; // added
+  level?: number;
+  score?: number;
+}
+
+export default function GameBoard({
+  onComplete,
+  onPause,
+  onScore,
+  level = 1,
+  score = 0,
+}: GameBoardProps) {
   const [board, setBoard] = useState<number[][]>(() => createBoard());
   const [selected, setSelected] = useState<Point | null>(null);
   const [path, setPath] = useState<Point[] | null>(null);
@@ -42,22 +47,22 @@ interface GameBoardProps {
   const saveScore = async (wallet: string, level: number, score: number) => {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
     const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  
+
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       console.warn("Supabase environment variables missing");
       return;
     }
-  
+
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/save-score`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({ wallet, level, score }),
       });
-  
+
       if (!res.ok) {
         const msg = await res.text();
         console.error("❌ Failed to save score:", msg);
@@ -68,7 +73,6 @@ interface GameBoardProps {
       console.error("❌ Network or server error:", err);
     }
   };
-  
 
   // ---------------------------
   // Load images from Moralis with robust checks
@@ -79,8 +83,12 @@ interface GameBoardProps {
       onPause?.(true);
 
       const MORALIS_KEY = import.meta.env.VITE_MORALIS_API_KEY || "";
-      const gatewaysRaw = import.meta.env.VITE_IPFS_GATEWAYS || "https://ipfs.io/ipfs/";
-      const GATEWAYS = gatewaysRaw.split(",").map((s: string) => s.trim()).filter(Boolean);
+      const gatewaysRaw =
+        import.meta.env.VITE_IPFS_GATEWAYS || "https://ipfs.io/ipfs/";
+      const GATEWAYS = gatewaysRaw
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter(Boolean);
       const baseUrl = import.meta.env.VITE_MORALIS_BASE_URL;
       const headers: Record<string, string> = {};
       if (MORALIS_KEY) headers["X-API-Key"] = MORALIS_KEY;
@@ -110,7 +118,9 @@ interface GameBoardProps {
         let current = firstJson;
         for (let i = 2; i <= randomPage; i++) {
           if (!current.cursor) break;
-          const nextResp = await fetch(`${baseUrl}&cursor=${current.cursor}`, { headers });
+          const nextResp = await fetch(`${baseUrl}&cursor=${current.cursor}`, {
+            headers,
+          });
           current = await safeJson(nextResp);
         }
 
@@ -132,13 +142,18 @@ interface GameBoardProps {
 
             imageUrl = metadata?.image || metadata?.image_url || null;
 
-            if (!imageUrl && item.token_uri && item.token_uri.endsWith(".json")) {
+            if (
+              !imageUrl &&
+              item.token_uri &&
+              item.token_uri.endsWith(".json")
+            ) {
               try {
                 const metaResp = await fetch(item.token_uri);
                 // token_uri may return HTML if blocked; check content-type
                 if (!metaResp.ok) throw new Error("token_uri fetch failed");
                 const ct = metaResp.headers.get("content-type") || "";
-                if (!ct.includes("application/json")) throw new Error("token_uri not JSON");
+                if (!ct.includes("application/json"))
+                  throw new Error("token_uri not JSON");
                 const meta = await metaResp.json();
                 imageUrl = meta.image || meta.image_url || null;
               } catch (e) {
@@ -159,8 +174,14 @@ interface GameBoardProps {
                   img.crossOrigin = "anonymous";
                   img.src = testUrl;
                   const timer = setTimeout(() => resolve(false), 3000);
-                  img.onload = () => { clearTimeout(timer); resolve(true); };
-                  img.onerror = () => { clearTimeout(timer); resolve(false); };
+                  img.onload = () => {
+                    clearTimeout(timer);
+                    resolve(true);
+                  };
+                  img.onerror = () => {
+                    clearTimeout(timer);
+                    resolve(false);
+                  };
                 });
                 if (ok) return testUrl;
               }
@@ -202,12 +223,18 @@ interface GameBoardProps {
         try {
           console.log(`🔄 Moralis attempt ${attempt}`);
           imgs = await fetchNFTPage();
-          if (imgs.length >= 20) { success = true; break; }
+          if (imgs.length >= 20) {
+            success = true;
+            break;
+          }
           console.warn(`⚠️ Attempt ${attempt} returned ${imgs.length} images`);
         } catch (err) {
-          console.warn(`⚠️ Attempt ${attempt} failed:`, (err as Error).message || err);
+          console.warn(
+            `⚠️ Attempt ${attempt} failed:`,
+            (err as Error).message || err
+          );
           // short delay then retry
-          await new Promise(res => setTimeout(res, 800));
+          await new Promise((res) => setTimeout(res, 800));
         }
       }
 
@@ -217,7 +244,10 @@ interface GameBoardProps {
           TILE_IMAGES.map(async (imageName) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
-            img.src = new URL(`../../assets/tile/${imageName}`, import.meta.url).href;
+            img.src = new URL(
+              `../../assets/tile/${imageName}`,
+              import.meta.url
+            ).href;
             await new Promise<void>((res, rej) => {
               img.onload = () => res();
               img.onerror = () => rej();
@@ -230,7 +260,9 @@ interface GameBoardProps {
 
       setImages(imgs);
       setIsLoading(false);
-      setTimeout(() => { onPause?.(false); }, 500);
+      setTimeout(() => {
+        onPause?.(false);
+      }, 500);
     };
 
     loadImages().catch((err) => {
@@ -241,7 +273,10 @@ interface GameBoardProps {
           TILE_IMAGES.map(async (imageName) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
-            img.src = new URL(`../../assets/tile/${imageName}`, import.meta.url).href;
+            img.src = new URL(
+              `../../assets/tile/${imageName}`,
+              import.meta.url
+            ).href;
             await new Promise<void>((res, rej) => {
               img.onload = () => res();
               img.onerror = () => rej();
@@ -257,12 +292,14 @@ interface GameBoardProps {
   }, []);
 
   // rest of board logic unchanged...
-  const handleCanvasClickWrapper = (event: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleCanvasClickWrapper = (
+    event: React.MouseEvent<HTMLCanvasElement>
+  ) => {
     if (showShuffleConfirm || isLoading) return;
-  
+
     // Clone board to compare before/after
     const prevBoard = structuredClone(board);
-  
+
     handleCanvasClick(
       event,
       board,
@@ -271,21 +308,30 @@ interface GameBoardProps {
       setPath,
       setBoard,
       (clientX, clientY) =>
-        getGridPosition(clientX, clientY, canvasRef.current?.getBoundingClientRect() || null)
+        getGridPosition(
+          clientX,
+          clientY,
+          canvasRef.current?.getBoundingClientRect() || null
+        )
     );
-  
+
     // Check if any tiles were removed → +100 points
-    const removed = prevBoard.flat().filter(Boolean).length - board.flat().filter(Boolean).length;
+    const removed =
+      prevBoard.flat().filter(Boolean).length -
+      board.flat().filter(Boolean).length;
     if (removed > 0) {
       onScore?.(100);
     }
   };
-  
+
   const shuffleBoard = () => {
     const remainingTiles = board.flat().filter((tile) => tile !== EMPTY);
     for (let i = remainingTiles.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [remainingTiles[i], remainingTiles[j]] = [remainingTiles[j], remainingTiles[i]];
+      [remainingTiles[i], remainingTiles[j]] = [
+        remainingTiles[j],
+        remainingTiles[i],
+      ];
     }
     const newBoard = board.map((row) => [...row]);
     let index = 0;
@@ -300,19 +346,19 @@ interface GameBoardProps {
 
   useEffect(() => {
     if (showShuffleConfirm) return;
-  
+
     const allCleared = board.flat().every((tile) => tile === EMPTY);
     if (!allCleared || !onComplete) return;
-  
+
     if (!hasSavedRef.current) {
       hasSavedRef.current = true;
       console.log("🎉 Level complete!");
-  
+
       const finalScore = (score ?? 0) + 100;
       if (address) {
         saveScore(address, level, finalScore);
       }
-  
+
       // Delay reset so next level loads cleanly
       setTimeout(() => {
         hasSavedRef.current = false;
@@ -320,34 +366,32 @@ interface GameBoardProps {
       }, 500);
     }
   }, [board, onComplete, showShuffleConfirm, address, level, score]);
-  
-  
 
   useEffect(() => {
     if (isLoading) return;
-  
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
+
     const dpr = window.devicePixelRatio || 1;
-  
+
     // Use your actual constants
     const logicalWidth = COLS * GRID_SIZE + GRID_SIZE * 2;
     const logicalHeight = ROWS * GRID_SIZE + GRID_SIZE * 2;
-  
+
     // Set internal pixel size for retina clarity
     canvas.width = logicalWidth * dpr;
     canvas.height = logicalHeight * dpr;
     ctx.scale(dpr, dpr);
-  
+
     // Scale CSS size to fit the screen width responsively
     const maxWidth = Math.min(window.innerWidth * 1.4, logicalWidth);
     const scale = maxWidth / logicalWidth;
     canvas.style.width = `${logicalWidth * scale}px`;
     canvas.style.height = `${logicalHeight * scale}px`;
-  
+
     // Draw
     ctx.clearRect(0, 0, logicalWidth, logicalHeight);
     drawGrid(ctx);
@@ -358,17 +402,22 @@ interface GameBoardProps {
 
   return (
     <div className="relative flex flex-col items-center gap-4">
-  <div className="relative overflow-hidden rounded-lg shadow-lg"
-       style={{ width: `${COLS * GRID_SIZE + GRID_SIZE * 2}px`, height: `${ROWS * GRID_SIZE + GRID_SIZE * 2}px` }}>
-    <div className="flex justify-center items-center w-full overflow-hidden">
-  <canvas
-    ref={canvasRef}
-    onClick={handleCanvasClickWrapper}
-    className="cursor-pointer block max-w-full h-auto"
-    width={COLS * GRID_SIZE + GRID_SIZE * 2}
-    height={ROWS * GRID_SIZE + GRID_SIZE * 2}
-  />
-</div>
+      <div
+        className="relative overflow-hidden rounded-lg shadow-lg"
+        style={{
+          width: `${COLS * GRID_SIZE + GRID_SIZE * 2}px`,
+          height: `${ROWS * GRID_SIZE + GRID_SIZE * 2}px`,
+        }}
+      >
+        <div className="flex justify-center items-center w-full overflow-hidden">
+          <canvas
+            ref={canvasRef}
+            onClick={handleCanvasClickWrapper}
+            className="cursor-pointer block max-w-full h-auto"
+            width={COLS * GRID_SIZE + GRID_SIZE * 2}
+            height={ROWS * GRID_SIZE + GRID_SIZE * 2}
+          />
+        </div>
         {showShuffleConfirm && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-lg text-white p-6 z-40">
             <p className="text-lg font-bold mb-4">Do you want to shuffle?</p>
@@ -378,13 +427,13 @@ interface GameBoardProps {
                   try {
                     onPause?.(true);
                     const tx = await sendTransactionAsync({
-                      to: '0xC7E8eD82a37fcA48D31CBe29a984c6Aaf929329c',
-                      value: parseEther('0.00003'),
+                      to: "0xC7E8eD82a37fcA48D31CBe29a984c6Aaf929329c",
+                      value: parseEther("0.00003"),
                     });
-                    console.log('✅ Transaction sent:', tx);
+                    console.log("✅ Transaction sent:", tx);
                     shuffleBoard();
                   } catch (err) {
-                    console.warn('❌ Transaction failed or rejected:', err);
+                    console.warn("❌ Transaction failed or rejected:", err);
                   } finally {
                     setShowShuffleConfirm(false);
                     onPause?.(false);
@@ -409,20 +458,22 @@ interface GameBoardProps {
 
         {showResetConfirm && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/20 backdrop-blur-md rounded-lg text-white p-6 z-40">
-            <p className="text-lg font-bold mb-4">Do you want to reset the board?</p>
+            <p className="text-lg font-bold mb-4">
+              Do you want to reset the board?
+            </p>
             <div className="flex gap-4">
               <button
                 onClick={async () => {
                   try {
                     onPause?.(true);
                     const tx = await sendTransactionAsync({
-                      to: '0xC7E8eD82a37fcA48D31CBe29a984c6Aaf929329c',
-                      value: parseEther('0.00003'),
+                      to: "0xC7E8eD82a37fcA48D31CBe29a984c6Aaf929329c",
+                      value: parseEther("0.00003"),
                     });
-                    console.log('✅ Transaction sent:', tx);
+                    console.log("✅ Transaction sent:", tx);
                     setBoard(createBoard());
                   } catch (err) {
-                    console.warn('❌ Transaction failed or rejected:', err);
+                    console.warn("❌ Transaction failed or rejected:", err);
                   } finally {
                     setShowResetConfirm(false);
                     onPause?.(false);
@@ -470,7 +521,11 @@ interface GameBoardProps {
                   }
                 }}
                 disabled={shuffleCount <= 0}
-                className={`px-4 py-2 rounded-lg text-white backdrop-blur-md transition ${shuffleCount > 0 ? "bg-green-600/30 hover:bg-green-600/50" : "bg-gray-500/30 cursor-not-allowed"}`}
+                className={`px-4 py-2 rounded-lg text-white backdrop-blur-md transition ${
+                  shuffleCount > 0
+                    ? "bg-green-600/30 hover:bg-green-600/50"
+                    : "bg-gray-500/30 cursor-not-allowed"
+                }`}
               >
                 Shuffle ({shuffleCount})
               </button>
