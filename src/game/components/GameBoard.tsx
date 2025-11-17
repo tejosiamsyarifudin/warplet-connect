@@ -276,10 +276,7 @@ export default function GameBoard({
           TILE_IMAGES.map(async (imageName) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
-            img.src = new URL(
-              `../../assets/tile/${imageName}`,
-              import.meta.url
-            ).href;
+            img.src = imageName;
             await new Promise<void>((res, rej) => {
               img.onload = () => res();
               img.onerror = () => rej();
