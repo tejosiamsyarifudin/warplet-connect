@@ -281,9 +281,6 @@ interface GameBoardProps {
     }
   };
   
-  
-  
-
   const shuffleBoard = () => {
     const remainingTiles = board.flat().filter((tile) => tile !== EMPTY);
     for (let i = remainingTiles.length - 1; i > 0; i--) {
@@ -446,7 +443,7 @@ interface GameBoardProps {
         )}
 
         {isLoading && (
-          <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-lg">
+          <div className="absolute inset-0 z-40 flex items-center justify-center">
             <div className="rounded-2xl bg-gray-900/80 border border-white/10 px-6 py-4 text-center text-white text-sm font-medium shadow-lg">
               <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-white/70 mx-auto mb-3"></div>
               Loading Onchain NFT images, please wait...

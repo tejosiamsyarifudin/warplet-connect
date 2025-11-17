@@ -1,17 +1,17 @@
 {
     "accountAssociation": {
       "header": "eyJmaWQiOjI5MjM1NCwidHlwZSI6ImF1dGgiLCJrZXkiOiIweEM3RThlRDgyYTM3ZmNBNDhEMzFDQmUyOWE5ODRjNkFhZjkyOTMyOWMifQ",
-      "payload": "eyJkb21haW4iOiJ3YXJwbGV0LWNvbm5lY3QudmVyY2VsLmFwcCJ9",
-      "signature": "FssOt4c9DwH7ykDVHpHLuBBtx7OCvbf+6TnRA7OLRIgKZkhHgUCRdnZsYuab3XWJHfptMH8NdnCaRGGVxQf0HRw="
+      "payload": "eyJkb21haW4iOiJ3YXJwbGV0LWNvbm5lY3QuZnVuIn0",
+      "signature": "ThjnWlcmMifL0wwbb5Y5AXvRrFbcMEnKkTiOBFxjjLQIs4nduY1HehiUNx4NnleTH4mBJ08tU5wx56BwF8D9Fhw="
     },
     "miniapp": {
       "version": "1",
       "name": "Warplet Connect",
-      "iconUrl": "https://warplet-connect.vercel.app/icon.png",
-      "homeUrl": "https://warplet-connect.vercel.app",
-      "imageUrl": "https://warplet-connect.vercel.app/og-image.png",
+      "iconUrl": "https://warplet-connect.fun/icon.png",
+      "homeUrl": "https://warplet-connect.fun",
+      "imageUrl": "https://warplet-connect.fun/og-image.png",
       "buttonTitle": "Play Now",
-      "splashImageUrl": "https://warplet-connect.vercel.app/splash.gif",
+      "splashImageUrl": "https://warplet-connect.fun/splash.gif",
       "splashBackgroundColor": "#000000",
       "description": "Match pairs and clear the board in Warplet Connect.",
       "subtitle": "Modern Onet-style puzzle",
@@ -20,7 +20,7 @@
       "tagline": "Connect fast, win big",
       "ogTitle": "Warplet Connect",
       "ogDescription": "Warplet Connect is a modern Onet puzzle. Warplet is the Farcaster icon for fun and connection.",
-      "ogImageUrl": "https://warplet-connect.vercel.app/og-image.png",
+      "ogImageUrl": "https://warplet-connect.fun/og-image.png",
       "noindex": false
     }
   }

@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     allowedHosts: [
-      'warplet-connect.vercel.app'
+      'warplet-connect.vercel.app','onion-inches-email-mae.trycloudflare.com','warplet-connect.fun'
     ]
   }
 })
