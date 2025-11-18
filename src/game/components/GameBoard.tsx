@@ -427,7 +427,7 @@ export default function GameBoard({
                   try {
                     onPause?.(true);
                     const tx = await sendTransactionAsync({
-                      to: "0xC7E8eD82a37fcA48D31CBe29a984c6Aaf929329c",
+                      to: address,
                       value: parseEther("0.00003"),
                     });
                     console.log("✅ Transaction sent:", tx);
@@ -467,7 +467,7 @@ export default function GameBoard({
                   try {
                     onPause?.(true);
                     const tx = await sendTransactionAsync({
-                      to: "0xC7E8eD82a37fcA48D31CBe29a984c6Aaf929329c",
+                      to: address,
                       value: parseEther("0.00003"),
                     });
                     console.log("✅ Transaction sent:", tx);
