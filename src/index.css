@@ -7,18 +7,28 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  /* background-color: #242424; */
-  background-image: url("/src/assets/background.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover; /* stretch menutupi seluruh area */
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: #e5e5f7;
+  opacity: 0.8;
+  background: radial-gradient(
+      circle,
+      transparent 20%,
+      #e5e5f7 20%,
+      #e5e5f7 80%,
+      transparent 80%,
+      transparent
+    ),
+    radial-gradient(
+        circle,
+        transparent 20%,
+        #e5e5f7 20%,
+        #e5e5f7 80%,
+        transparent 80%,
+        transparent
+      )
+      25px 25px,
+    linear-gradient(#6d49f6 2px, transparent 2px) 0 -1px,
+    linear-gradient(90deg, #6d49f6 2px, #e5e5f7 2px) -1px 0;
+  background-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px;
 }
 
 /* 캔버스 이미지 품질 개선 */
@@ -28,4 +38,83 @@ canvas {
   backface-visibility: hidden;
   display: block;
   margin: 0 auto;
+}
+
+.textGradient44 {
+  font-weight: 700;
+  font-size: 44px;
+  background: linear-gradient(30deg, black 20%, #6d49f6 80%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.textGradient22 {
+  font-weight: 400;
+  font-size: 22px;
+  background: linear-gradient(30deg, black 20%, #6d49f6 80%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.textGradient {
+  font-weight: 400;
+  background: linear-gradient(30deg, black 20%, #6d49f6 80%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.btnBackground {
+  background: linear-gradient(30deg, rgb(0, 0, 0) 20%, #6d49f6 80%);
+  border-radius: 100%;
+}
+
+.btnFloatSun {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  width: 80px;
+  height: 80px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: #6d49f6 0px 0px 0px 0px;
+  animation: shinePulse 1.2s cubic-bezier(0.8, 0, 0, 1) infinite;
+  position: relative;
+}
+
+@keyframes shinePulse {
+  0% {
+    box-shadow: 0 0 0 0 #6d49f6;
+  }
+  100% {
+    box-shadow: 0 0 0 45px rgba(109, 73, 246, 0);
+  }
+}
+
+.starWrap {
+  position: relative;
+  display: inline-block;
+}
+
+.starPoint {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: blinkStar infinite ease-in-out;
+}
+
+@keyframes blinkStar {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

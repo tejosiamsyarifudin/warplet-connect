@@ -75,172 +75,14 @@ export default function GameBoard({
   };
 
   // ---------------------------
-  // Load images from Moralis with robust checks
+  // Load images with robust checks
   // ---------------------------
   useEffect(() => {
     const loadImages = async () => {
       setIsLoading(true);
       onPause?.(true);
 
-      const MORALIS_KEY = import.meta.env.VITE_MORALIS_API_KEY || "";
-      const gatewaysRaw =
-        import.meta.env.VITE_IPFS_GATEWAYS || "https://ipfs.io/ipfs/";
-      const GATEWAYS = gatewaysRaw
-        .split(",")
-        .map((s: string) => s.trim())
-        .filter(Boolean);
-      const baseUrl = import.meta.env.VITE_MORALIS_BASE_URL;
-      const headers: Record<string, string> = {};
-      if (MORALIS_KEY) headers["X-API-Key"] = MORALIS_KEY;
-
-      const safeJson = async (resp: Response) => {
-        const contentType = resp.headers.get("content-type") || "";
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        if (!contentType.includes("application/json")) {
-          // returned HTML or other - treat as failure
-          const text = await resp.text().catch(() => "");
-          throw new Error(`Not JSON response: ${text.slice(0, 200)}`);
-        }
-        return resp.json();
-      };
-
-      const fetchNFTPage = async () => {
-        // fetch first page to get cursor and total
-        const firstResp = await fetch(baseUrl, { headers });
-        const firstJson = await safeJson(firstResp);
-        const total = Number(firstJson.total) || 500;
-        const limit = 27;
-        const totalPages = Math.max(1, Math.ceil(total / limit));
-        // choose a random page within a reasonable bound
-        const randomPage = Math.floor(Math.random() * totalPages) + 1;
-
-        // iterate cursor to reach that page (Moralis uses cursor for pagination)
-        let current = firstJson;
-        for (let i = 2; i <= randomPage; i++) {
-          if (!current.cursor) break;
-          const nextResp = await fetch(`${baseUrl}&cursor=${current.cursor}`, {
-            headers,
-          });
-          current = await safeJson(nextResp);
-        }
-
-        const nftItems = (current.result || []).slice(0, 27);
-
-        // resolve image urls and validate via gateways
-        const urlResults = await Promise.allSettled(
-          nftItems.map(async (item: any) => {
-            let imageUrl: string | null = null;
-            let metadata = item.normalized_metadata || item.metadata;
-
-            if (typeof metadata === "string") {
-              try {
-                metadata = JSON.parse(metadata);
-              } catch {
-                metadata = null;
-              }
-            }
-
-            imageUrl = metadata?.image || metadata?.image_url || null;
-
-            if (
-              !imageUrl &&
-              item.token_uri &&
-              item.token_uri.endsWith(".json")
-            ) {
-              try {
-                const metaResp = await fetch(item.token_uri);
-                // token_uri may return HTML if blocked; check content-type
-                if (!metaResp.ok) throw new Error("token_uri fetch failed");
-                const ct = metaResp.headers.get("content-type") || "";
-                if (!ct.includes("application/json"))
-                  throw new Error("token_uri not JSON");
-                const meta = await metaResp.json();
-                imageUrl = meta.image || meta.image_url || null;
-              } catch (e) {
-                // ignore and continue
-              }
-            }
-
-            if (!imageUrl) throw new Error("No image field");
-
-            // Normalize ipfs/arweave
-            if (imageUrl.startsWith("ipfs://")) {
-              const cid = imageUrl.replace("ipfs://", "");
-              for (const gw of GATEWAYS) {
-                const testUrl = gw + cid;
-                // quick existence check using Image on client: faster than fetch for CORS-prone gateways
-                const ok = await new Promise<boolean>((resolve) => {
-                  const img = new Image();
-                  img.crossOrigin = "anonymous";
-                  img.src = testUrl;
-                  const timer = setTimeout(() => resolve(false), 3000);
-                  img.onload = () => {
-                    clearTimeout(timer);
-                    resolve(true);
-                  };
-                  img.onerror = () => {
-                    clearTimeout(timer);
-                    resolve(false);
-                  };
-                });
-                if (ok) return testUrl;
-              }
-              throw new Error("All gateways failed");
-            }
-
-            // normal http(s) url
-            return imageUrl;
-          })
-        );
-
-        const validUrls = urlResults
-          .filter((r) => r.status === "fulfilled")
-          .map((r) => (r as PromiseFulfilledResult<string>).value);
-
-        if (validUrls.length < 10) throw new Error("Too few valid images");
-
-        // load images
-        const imgs = await Promise.all(
-          validUrls.map(async (url) => {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.src = url;
-            await new Promise<void>((res, rej) => {
-              img.onload = () => res();
-              img.onerror = () => rej();
-            });
-            return img;
-          })
-        );
-
-        return imgs;
-      };
-
-      // Single attempt only
-      let imgs: HTMLImageElement[] = [];
-      let success = false;
-
       try {
-        console.log("🔄 Moralis attempt 1");
-        imgs = await fetchNFTPage();
-
-        if (imgs.length >= 20) {
-          success = true;
-        } else {
-          console.warn(
-            `⚠️ Only got ${imgs.length} images. Using local fallback`
-          );
-        }
-      } catch (err) {
-        console.warn(
-          "⚠️ Moralis request failed:",
-          (err as Error).message || err
-        );
-      }
-
-      // Fallback to local images if failed OR too few
-      if (!success) {
-        console.warn("❌ Falling back to local images");
         const localImages = await Promise.all(
           TILE_IMAGES.map(async (imageName) => {
             const img = new Image();
@@ -258,37 +100,39 @@ export default function GameBoard({
             return img;
           })
         );
-        imgs = localImages;
-      }
 
-      setImages(imgs);
-      setIsLoading(false);
-      setTimeout(() => {
-        onPause?.(false);
-      }, 500);
-    };
+        setImages(localImages);
+        setIsLoading(false);
 
-    loadImages().catch((err) => {
-      console.error("Load images fatal:", err);
-      // final fallback
-      (async () => {
-        const localImages = await Promise.all(
+        setTimeout(() => {
+          onPause?.(false);
+        }, 500);
+      } catch (err) {
+        console.error("Load images error:", err);
+
+        // final fallback
+        const fallbackImages = await Promise.all(
           TILE_IMAGES.map(async (imageName) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.src = imageName;
+
             await new Promise<void>((res, rej) => {
               img.onload = () => res();
               img.onerror = () => rej();
             });
+
             return img;
           })
         );
-        setImages(localImages);
+
+        setImages(fallbackImages);
         setIsLoading(false);
         onPause?.(false);
-      })();
-    });
+      }
+    };
+
+    loadImages();
   }, []);
 
   // rest of board logic unchanged...
@@ -439,7 +283,7 @@ export default function GameBoard({
                     onPause?.(false);
                   }
                 }}
-                className="px-4 py-2 bg-green-600/30 hover:bg-green-600/50 rounded-lg"
+                className="mt-4 btnBackground text-white font-semibold p-4 rounded-lg hover:bg-blue-700 transition text-center"
               >
                 Yes
               </button>
@@ -448,7 +292,7 @@ export default function GameBoard({
                   setShowShuffleConfirm(false);
                   onPause?.(false);
                 }}
-                className="px-4 py-2 bg-gray-500/30 hover:bg-gray-500/50 rounded-lg"
+                className="mt-4 btnBackground text-white font-semibold p-4 rounded-lg hover:bg-blue-700 transition text-center"
               >
                 No
               </button>
@@ -479,13 +323,13 @@ export default function GameBoard({
                     onPause?.(false);
                   }
                 }}
-                className="px-4 py-2 bg-green-600/30 text-white rounded-lg hover:bg-green-600/50"
+                className="mt-4 btnBackground text-white font-semibold p-4 rounded-lg hover:bg-blue-700 transition text-center"
               >
                 Yes
               </button>
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2 bg-red-600/30 text-white rounded-lg hover:bg-red-600/50"
+                className="mt-4 btnBackground text-white font-semibold p-4 rounded-lg hover:bg-blue-700 transition text-center"
               >
                 No
               </button>
@@ -497,7 +341,7 @@ export default function GameBoard({
           <div className="absolute inset-0 z-40 flex items-center justify-center">
             <div className="rounded-2xl bg-gray-900/80 border border-white/10 px-6 py-4 text-center text-white text-sm font-medium shadow-lg">
               <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-white/70 mx-auto mb-3"></div>
-              Loading Onchain NFT images, please wait...
+              Loading NFT images, please wait...
             </div>
           </div>
         )}
@@ -509,9 +353,24 @@ export default function GameBoard({
             <>
               <button
                 onClick={() => setShowResetConfirm(true)}
-                className="px-4 py-2 bg-blue-600/30 text-white rounded-lg hover:bg-blue-600/50"
+                className="w-10 h-10 rounded-full btnBackground transition flex items-center justify-center"
               >
-                Reset
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="invert"
+                >
+                  <path
+                    d="M13 19H17.2942C19.1594 19 20.092 19 20.6215 18.6092C21.0832 18.2685 21.3763 17.7459 21.4263 17.1743C21.4836 16.5187 20.9973 15.7229 20.0247 14.1313L19.0278 12.5M6.13014 10.6052L3.97528 14.1314C3.00267 15.7229 2.51637 16.5187 2.57372 17.1743C2.62372 17.7459 2.91681 18.2685 3.37846 18.6092C3.90799 19 4.84059 19 6.70578 19H8.5M16.8889 8.99999L14.7305 5.46808C13.8277 3.99079 13.3763 3.25214 12.7952 3.00033C12.2879 2.78049 11.7121 2.78049 11.2048 3.00033C10.6237 3.25214 10.1723 3.99079 9.2695 5.46809L8.24967 7.13689M18 5.00006L16.9019 9.09813L12.8038 8.00006M2 11.5981L6.09808 10.5L7.19615 14.5981M15.5 22L12.5 19L15.5 16"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>{" "}
               </button>
               <button
                 onClick={() => {
@@ -521,13 +380,25 @@ export default function GameBoard({
                   }
                 }}
                 disabled={shuffleCount <= 0}
-                className={`px-4 py-2 rounded-lg text-white backdrop-blur-md transition ${
-                  shuffleCount > 0
-                    ? "bg-green-600/30 hover:bg-green-600/50"
-                    : "bg-gray-500/30 cursor-not-allowed"
-                }`}
+                className={`w-10 h-10 rounded-full btnBackground transition flex items-center justify-center
+     ${shuffleCount <= 0 ? "opacity-30" : "opacity-100"}`}
               >
-                Shuffle ({shuffleCount})
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="invert"
+                >
+                  <path
+                    d="M18 15L21 18M21 18L18 21M21 18H18.5689C17.6297 18 17.1601 18 16.7338 17.8705C16.3564 17.7559 16.0054 17.5681 15.7007 17.3176C15.3565 17.0348 15.096 16.644 14.575 15.8626L14.3333 15.5M18 3L21 6M21 6L18 9M21 6H18.5689C17.6297 6 17.1601 6 16.7338 6.12945C16.3564 6.24406 16.0054 6.43194 15.7007 6.68236C15.3565 6.96523 15.096 7.35597 14.575 8.13744L9.42496 15.8626C8.90398 16.644 8.64349 17.0348 8.29933 17.3176C7.99464 17.5681 7.64357 17.7559 7.2662 17.8705C6.83994 18 6.37033 18 5.43112 18H3M3 6H5.43112C6.37033 6 6.83994 6 7.2662 6.12945C7.64357 6.24406 7.99464 6.43194 8.29933 6.68236C8.64349 6.96523 8.90398 7.35597 9.42496 8.13744L9.66667 8.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </button>
             </>
           )}

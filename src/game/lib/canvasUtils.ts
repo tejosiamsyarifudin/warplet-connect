@@ -52,7 +52,7 @@ export function resizeImageHighQuality(
  */
 export function drawGrid(ctx: CanvasRenderingContext2D): void {
   ctx.strokeStyle = "#ddd";
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
 
   // 수직선
   for (let col = 0; col <= COLS; col++) {
@@ -97,21 +97,49 @@ export function drawTiles(
 
         // 이미지 그리기
         const img = images[tile - 1];
+        const radius = 10;
 
         ctx.save();
-        // 네모 모양으로 클리핑
-        ctx.beginPath();
-        ctx.rect(
-          actualCenter.x - tileRadius,
-          actualCenter.y - tileRadius,
-          tileSize,
-          tileSize
-        );
-        ctx.clip();
+
+        function roundRect(
+          ctx: CanvasRenderingContext2D,
+          x: number,
+          y: number,
+          w: number,
+          h: number,
+          r: number
+        ) {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.lineTo(x + w - r, y);
+          ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+          ctx.lineTo(x + w, y + h - r);
+          ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          ctx.lineTo(x + r, y + h);
+          ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+          ctx.lineTo(x, y + r);
+          ctx.quadraticCurveTo(x, y, x + r, y);
+          ctx.closePath();
+        }
 
         // 이미지 품질 개선을 위한 설정
         applyImageQualitySettings(ctx);
 
+        // clip with rounded corner
+        roundRect(
+          ctx,
+          actualCenter.x - tileRadius,
+          actualCenter.y - tileRadius,
+          tileSize,
+          tileSize,
+          radius
+        );
+        ctx.clip();
+
+        // high quality
+        applyImageQualitySettings(ctx);
+
+        // draw image
         ctx.drawImage(
           img,
           actualCenter.x - tileRadius,
@@ -122,15 +150,16 @@ export function drawTiles(
 
         ctx.restore();
 
-        // 타일 테두리 (네모)
+        // border outline
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 0.2;
-        ctx.beginPath();
-        ctx.rect(
+        roundRect(
+          ctx,
           actualCenter.x - tileRadius,
           actualCenter.y - tileRadius,
           tileSize,
-          tileSize
+          tileSize,
+          radius
         );
         ctx.stroke();
       }
