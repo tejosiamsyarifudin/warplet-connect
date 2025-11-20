@@ -1,4 +1,4 @@
-import { sdk } from "@farcaster/miniapp-sdk";
+import { ComposeCast, sdk } from "@farcaster/miniapp-sdk";
 import { useState, useEffect, useMemo } from "react";
 import GameBoard from "./game/components/GameBoard";
 import { useAccount, useConnect, useSendCalls } from "wagmi";
@@ -300,6 +300,19 @@ function App() {
 
   const [myHighscore, setMyHighscore] = useState(0);
 
+  const handleComposeCast = async () => {
+    const result = await sdk.actions.composeCast({
+      text: "Test your focus and speed in Warplet Connect, a modern Onet-style matching game",
+      embeds: ["https://farcaster.xyz/miniapps/JeZEoKztw_bt/warplet-connect"],
+      channelKey: "replyguys",
+    });
+
+    if (result?.cast) {
+      console.log(result.cast.hash);
+      console.log(result.cast.channelKey);
+    }
+  };
+
   useEffect(() => {
     if (!address) return;
 
@@ -380,6 +393,27 @@ function App() {
                     />
                   </svg>
                 </button> */}
+                <button
+                  onClick={handleComposeCast}
+                  className="w-10 h-10 rounded-full btnBackground transition flex items-center justify-center z-40"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="invert"
+                  >
+                    <path
+                      d="M8.59 13.51L15.42 17.49M15.41 6.51L8.59 10.49M21 5C21 6.65685 19.6569 8 18 8C16.3431 8 15 6.65685 15 5C15 3.34315 16.3431 2 18 2C19.6569 2 21 3.34315 21 5ZM9 12C9 13.6569 7.65685 15 6 15C4.34315 15 3 13.6569 3 12C3 10.3431 4.34315 9 6 9C7.65685 9 9 10.3431 9 12ZM21 19C21 20.6569 19.6569 22 18 22C16.3431 22 15 20.6569 15 19C15 17.3431 16.3431 16 18 16C19.6569 16 21 17.3431 21 19Z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
 
                 <button
                   onClick={goHome}
@@ -465,7 +499,6 @@ function App() {
               </div>
             </div>
           </div>
-
           {/* START SCREEN */}
           {!isPlaying && !isGameOver && (
             <div className="absolute inset-0 flex flex-col items-center justify-top bg-white/20  rounded-lg p-6">
@@ -526,7 +559,6 @@ function App() {
               </div>
             </div>
           )}
-
           {/* GAME OVER */}
           {!isPlaying && isGameOver && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60">
@@ -539,7 +571,6 @@ function App() {
               </button>
             </div>
           )}
-
           {/* LEADERBOARD MODAL */}
           {showLeaderboard && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-50">
@@ -571,7 +602,6 @@ function App() {
               </div>
             </div>
           )}
-
           {/* HOW TO PLAY MODAL */}
           {showHowToPlay && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-50">
@@ -614,7 +644,6 @@ function App() {
               </div>
             </div>
           )}
-
           {/* DAILY STREAK MODAL */}
           {showDailyStreak && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-50">
@@ -634,21 +663,19 @@ function App() {
                   <img src={FlameIcon} className="w-8 h-8" />
                   <span className="text-white text-lg font-bold">{streak}</span>
                 </div>
-
-                <button
-                  onClick={handleSwap}
-                  className={`w-full py-3 rounded-lg font-bold transition ${
-                    signedToday
-                      ? "bg-gray-500 cursor-not-allowed"
-                      : "bg-orange-600"
-                  }`}
-                >
-                  {signedToday ? "Signed Today" : "Sign Today"}
-                </button>
+                <div className="text-center">
+                  {!signedToday && (
+                    <button
+                      onClick={handleSwap}
+                      className="mt-4 btnBackground text-white font-semibold p-4 rounded-lg hover:bg-blue-700 transition text-center"
+                    >
+                      Sign Today
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
-
           {/* FLOATING BUTTON */}
           <button
             onClick={openLeaderboard}
@@ -656,22 +683,23 @@ function App() {
           >
             <img src={LeaderboardIcon} className="w-6 h-6 invert" />
           </button>
-
-          <button
-            onClick={() => {
-              if (!signedToday) setShowDailyStreak(true);
-            }}
-            disabled={signedToday}
-            className={`fixed bottom-2 left-2 w-10 h-10 rounded-full btnBackground transition flex items-center justify-center z-40
+          {isConnected && (
+            <button
+              onClick={() => {
+                if (!signedToday) setShowDailyStreak(true);
+              }}
+              disabled={signedToday}
+              className={`fixed bottom-2 left-2 w-10 h-10 rounded-full btnBackground transition flex items-center justify-center z-40
     ${
       signedToday
         ? "bg-gray-500/40 cursor-not-allowed opacity-50"
         : "bg-orange-600/40 hover:bg-orange-600/60"
     }
   `}
-          >
-            <img src={FlameIcon} className="w-6 h-6 invert" />
-          </button>
+            >
+              <img src={FlameIcon} className="w-6 h-6 invert" />
+            </button>
+          )}
         </main>
       </div>
       <Analytics />

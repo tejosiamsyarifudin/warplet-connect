@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     allowedHosts: [
       "warplet-connect.vercel.app",
-      "vitamin-ion-surf-syracuse.trycloudflare.com",
+      "outlet-then-root-classics.trycloudflare.com",
       "warplet-connect.fun",
     ],
   },

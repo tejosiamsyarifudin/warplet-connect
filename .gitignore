@@ -42,3 +42,4 @@ sketch
 .env.local
 .env.development
 .env.production
+warplet-connect.code-workspace
